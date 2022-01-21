@@ -311,7 +311,7 @@ export default {
       if (targetIndex !== -1) {
         this.tickerList.splice(targetIndex, 1);
         this.selectedTicker = null;
-        unsubscribeTicker(ticker.name, this.setTickerPrice);
+        unsubscribeTicker(ticker.name, [this.setTickerPrice]);
       }
     },
     validateTicker() {
