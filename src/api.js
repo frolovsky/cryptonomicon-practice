@@ -4,6 +4,7 @@ import {
   subscribeTickerService,
   getSubscribeString,
   getTickerHandlers,
+  getTickerNameFromParam,
 } from "@/services/tickerService";
 
 const API_KEY =
@@ -11,14 +12,28 @@ const API_KEY =
 const API_STRING = new URLSearchParams({
   api_key: API_KEY,
 }).toString();
+
 const AGGREGATE_INDEX = "5";
+const ERROR_INDEX = "500";
+const INVALID_SUB_MESSAGE = "INVALID_SUB";
+
 const ws = new WebSocket(`wss://streamer.cryptocompare.com/v2?${API_STRING}`);
 
 ws.addEventListener("message", (e) => {
-  const { PRICE: price, TYPE: type, FROMSYMBOL: name } = JSON.parse(e.data);
+  const {
+    PRICE: price,
+    TYPE: type,
+    FROMSYMBOL: name,
+    MESSAGE: message,
+    PARAMETER: param,
+  } = JSON.parse(e.data);
 
   if (type === AGGREGATE_INDEX && price !== undefined) {
-    updateTicker(name, price);
+    updateTicker(name, { price });
+  }
+
+  if (type === ERROR_INDEX && message === INVALID_SUB_MESSAGE) {
+    updateTicker(getTickerNameFromParam(param), { price: "-", isValid: false });
   }
 });
 

@@ -115,7 +115,10 @@
             class="bg-white overflow-hidden shadow rounded-lg border-solid border-4 cursor-pointer"
             @click="selectTicker(t)"
           >
-            <div class="px-4 py-5 sm:p-6 text-center">
+            <div
+              :class="[t.isValid ? '' : 'bg-red-100']"
+              class="px-4 py-5 sm:p-6 text-center"
+            >
               <dt class="text-sm font-medium text-gray-500 truncate">
                 {{ t.name }} - USD
               </dt>
@@ -222,7 +225,7 @@ export default {
     if (storedTickers) {
       this.tickerList = storedTickers;
       this.tickerList.forEach((ticker) => {
-        subscribeTicker(ticker.name, this.setTickerPrice);
+        subscribeTicker(ticker.name, this.updateTicker);
       });
     }
     const response = await fetch(
@@ -277,24 +280,26 @@ export default {
   methods: {
     add() {
       if (!this.validateTicker()) {
-        return undefined;
+        // return undefined;
+        console.log("ticker is not valid");
       }
 
       const currentTicker = {
         name: this.ticker.toUpperCase(),
         price: "-",
+        isValid: true,
       };
-      subscribeTicker(currentTicker.name, this.setTickerPrice);
+      subscribeTicker(currentTicker.name, this.updateTicker);
       this.tickerList.push(currentTicker);
       this.ticker = "";
     },
-    setTickerPrice(tickerName, price) {
-      const ticker = this.tickerList.find((t) => t.name === tickerName);
+    updateTicker(tickerName, tickerData) {
+      let ticker = this.tickerList.find((t) => t.name === tickerName);
       if (ticker) {
-        ticker.price = price;
+        ticker = Object.assign(ticker, tickerData);
       }
-      if (this.selectedTicker?.name === tickerName) {
-        this.graph.push(price);
+      if (this.selectedTicker?.name === tickerName && tickerData.price) {
+        this.graph.push(tickerData.price);
       }
     },
     addFromHint(t) {
@@ -311,7 +316,7 @@ export default {
       if (targetIndex !== -1) {
         this.tickerList.splice(targetIndex, 1);
         this.selectedTicker = null;
-        unsubscribeTicker(ticker.name, [this.setTickerPrice]);
+        unsubscribeTicker(ticker.name, [this.updateTicker]);
       }
     },
     validateTicker() {

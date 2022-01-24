@@ -2,7 +2,10 @@ const tickerHandlers = new Map();
 
 const getSubscribeString = (ticker) => `5~CCCAGG~${ticker}~USD`;
 
-const updateTicker = (name, price) => {
+const getTickerNameFromParam = (sub) =>
+  sub.replace(/(\w+)~(\w+)~(\w+)~(\w+)/gi, "$3");
+
+const updateTicker = (name, { price, isValid = true }) => {
   if (price === undefined) {
     return;
   }
@@ -11,7 +14,7 @@ const updateTicker = (name, price) => {
     return console.log(name, " не найден в ticketHandlers");
   }
   ticker.forEach((handler) => {
-    handler(name, price);
+    handler(name, { price, isValid });
   });
 };
 
@@ -41,4 +44,5 @@ module.exports = {
   subscribeTickerService,
   getSubscribeString,
   getTickerHandlers,
+  getTickerNameFromParam,
 };
