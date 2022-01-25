@@ -2,12 +2,12 @@ import {
   updateTicker,
   unsubscribeTickerService,
   subscribeTickerService,
-  getSubscribeString,
   getTickerHandlers,
-  parseTickerParam,
   crossConvertHandler,
   DEFAULT_CURRENCY,
 } from "@/services/tickerService";
+
+import { getSubscribeString, parseTickerParam } from "@/utils/tickerUtils";
 
 const API_KEY =
   "74ee7d2a488a9dc44391021f1bedded4bb782aec418b2568c590fe4c0619f6b2";

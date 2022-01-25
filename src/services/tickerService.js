@@ -29,11 +29,6 @@ const crossConvertHandler = (name, currency, price) => {
   }
 };
 
-const getSubscribeString = (ticker, currency = "USD") =>
-  `5~CCCAGG~${ticker}~${currency}`;
-
-const parseTickerParam = (sub) => sub.match(/\w+/g).reverse();
-
 const updateTicker = (name, { price, isValid = true }) => {
   if (price === undefined) {
     return;
@@ -71,9 +66,7 @@ module.exports = {
   updateTicker,
   unsubscribeTickerService,
   subscribeTickerService,
-  getSubscribeString,
   getTickerHandlers,
-  parseTickerParam,
   crossConvertHandler,
   DEFAULT_CURRENCY,
 };
