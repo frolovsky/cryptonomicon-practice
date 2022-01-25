@@ -4,7 +4,9 @@ import {
   subscribeTickerService,
   getSubscribeString,
   getTickerHandlers,
-  getTickerNameFromParam,
+  parseTickerParam,
+  crossConvertHandler,
+  DEFAULT_CURRENCY,
 } from "@/services/tickerService";
 
 const API_KEY =
@@ -26,14 +28,20 @@ ws.addEventListener("message", (e) => {
     FROMSYMBOL: name,
     MESSAGE: message,
     PARAMETER: param,
+    TOSYMBOL: currency,
   } = JSON.parse(e.data);
 
   if (type === AGGREGATE_INDEX && price !== undefined) {
-    updateTicker(name, { price });
+    updateTicker(name, { price, isValid: true });
+    crossConvertHandler(name, currency, price);
   }
 
   if (type === ERROR_INDEX && message === INVALID_SUB_MESSAGE) {
-    updateTicker(getTickerNameFromParam(param), { price: "-", isValid: false });
+    const [cur, tickerName] = parseTickerParam(param);
+    updateTicker(tickerName, { price: "-", isValid: false });
+    if (cur === DEFAULT_CURRENCY) {
+      manageTickersInWS(getSubscribeString(tickerName, "BTC"), "SubAdd");
+    }
   }
 });
 

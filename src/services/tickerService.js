@@ -1,9 +1,38 @@
 const tickerHandlers = new Map();
+const crossConvertedTickers = new Map();
+const DEFAULT_CURRENCY = "USD";
 
-const getSubscribeString = (ticker) => `5~CCCAGG~${ticker}~USD`;
+const getCrossConvertedTickers = (currency) =>
+  crossConvertedTickers.get(currency);
 
-const getTickerNameFromParam = (sub) =>
-  sub.replace(/(\w+)~(\w+)~(\w+)~(\w+)/gi, "$3");
+const setCrossConvertedTicker = (tickerName, currency, price) => {
+  const currencyStorage = getCrossConvertedTickers(currency);
+  currencyStorage
+    ? crossConvertedTickers.set(currency, [
+        ...currencyStorage,
+        { tickerName, price },
+      ])
+    : crossConvertedTickers.set(currency, [{ tickerName, price }]);
+};
+
+const crossConvertHandler = (name, currency, price) => {
+  if (currency !== DEFAULT_CURRENCY) {
+    setCrossConvertedTicker(name, currency, price);
+  } else {
+    const crossConvertedTickers = getCrossConvertedTickers(name);
+    if (crossConvertedTickers && crossConvertedTickers.length) {
+      crossConvertedTickers.forEach(({ tickerName, price: oldPrice }) => {
+        const convertedPrice = price * oldPrice;
+        updateTicker(tickerName, { price: convertedPrice, isValid: true });
+      });
+    }
+  }
+};
+
+const getSubscribeString = (ticker, currency = "USD") =>
+  `5~CCCAGG~${ticker}~${currency}`;
+
+const parseTickerParam = (sub) => sub.match(/\w+/g).reverse();
 
 const updateTicker = (name, { price, isValid = true }) => {
   if (price === undefined) {
@@ -44,5 +73,7 @@ module.exports = {
   subscribeTickerService,
   getSubscribeString,
   getTickerHandlers,
-  getTickerNameFromParam,
+  parseTickerParam,
+  crossConvertHandler,
+  DEFAULT_CURRENCY,
 };
