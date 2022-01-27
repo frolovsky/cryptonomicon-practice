@@ -165,7 +165,6 @@
               height: `${graph + 5}%`,
               width: `${graphElementWidth}px`,
             }"
-            ref="graph-element"
           ></div>
         </div>
         <button
@@ -323,7 +322,6 @@ export default {
     },
     selectTicker(ticker) {
       this.selectedTicker = ticker;
-      this.calculateMaxGraphElements();
     },
     removeTicker(ticker) {
       const targetIndex = this.tickerList.findIndex(
@@ -367,8 +365,12 @@ export default {
     selectedTicker() {
       this.graph = [];
     },
-    graph() {
-      this.spliceGraph();
+    graph: {
+      deep: true,
+      handler() {
+        this.calculateMaxGraphElements();
+        this.spliceGraph();
+      },
     },
     maxGraphElements() {
       this.spliceGraph();
