@@ -153,12 +153,19 @@
         <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
           {{ selectedTicker.name }} - USD
         </h3>
-        <div class="flex items-end border-gray-600 border-b border-l h-64">
+        <div
+          ref="graph-wrapper"
+          class="flex items-end border-gray-600 border-b border-l h-64"
+        >
           <div
             v-for="(graph, idx) in normalizedGraph"
             :key="idx"
-            class="bg-purple-800 border w-10"
-            :style="{ height: `${graph + 5}%` }"
+            class="bg-purple-800 border"
+            :style="{
+              height: `${graph + 5}%`,
+              width: `${graphElementWidth}px`,
+            }"
+            ref="graph-element"
           ></div>
         </div>
         <button
@@ -204,6 +211,8 @@ export default {
     selectedTicker: null,
     coinList: {},
     graph: [],
+    maxGraphElements: 1,
+    graphElementWidth: 38,
     errorText: "",
     filter: "",
     page: 1,
@@ -236,6 +245,12 @@ export default {
     );
     const { Data } = await response.json();
     if (Data) this.coinList = Data;
+  },
+  mounted() {
+    window.addEventListener("resize", this.calculateMaxGraphElements);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.calculateMaxGraphElements);
   },
   computed: {
     normalizedGraph() {
@@ -308,6 +323,7 @@ export default {
     },
     selectTicker(ticker) {
       this.selectedTicker = ticker;
+      this.calculateMaxGraphElements();
     },
     removeTicker(ticker) {
       const targetIndex = this.tickerList.findIndex(
@@ -334,10 +350,28 @@ export default {
       if (typeof price === "string") return price;
       return price > 1 ? price.toFixed(2) : price.toPrecision(2);
     },
+    calculateMaxGraphElements() {
+      if (!this.$refs["graph-wrapper"]) {
+        return;
+      }
+      this.maxGraphElements =
+        this.$refs["graph-wrapper"].clientWidth / this.graphElementWidth;
+    },
+    spliceGraph() {
+      if (this.graph.length > this.maxGraphElements) {
+        this.graph.splice(0, this.graph.length - this.maxGraphElements);
+      }
+    },
   },
   watch: {
     selectedTicker() {
       this.graph = [];
+    },
+    graph() {
+      this.spliceGraph();
+    },
+    maxGraphElements() {
+      this.spliceGraph();
     },
     tickerList: {
       deep: true,
