@@ -12,7 +12,9 @@ import { getSubscribeString, parseTickerParam } from "@/utils/tickerUtils";
 const AGGREGATE_INDEX = "5";
 const ERROR_INDEX = "500";
 const INVALID_SUB_MESSAGE = "INVALID_SUB";
-const sharedWorker = new SharedWorker("workers/websocket-worker.js").port;
+const sharedWorker = new SharedWorker("workers/websocket-worker.js", {
+  name: "websocket-worker",
+}).port;
 
 sharedWorker.start();
 
