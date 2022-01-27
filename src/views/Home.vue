@@ -314,6 +314,7 @@ export default {
       }
       if (this.selectedTicker?.name === tickerName && tickerData.price) {
         this.graph.push(tickerData.price);
+        this.spliceGraph();
       }
     },
     addFromHint(t) {
@@ -364,13 +365,7 @@ export default {
   watch: {
     selectedTicker() {
       this.graph = [];
-    },
-    graph: {
-      deep: true,
-      handler() {
-        this.calculateMaxGraphElements();
-        this.spliceGraph();
-      },
+      this.$nextTick().then(this.calculateMaxGraphElements);
     },
     maxGraphElements() {
       this.spliceGraph();
