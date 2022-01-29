@@ -2,9 +2,9 @@
   <div
     class="ui-modal"
     :class="{ 'ui-modal--opened': isOpen }"
-    @click.self="closeModal"
+    @click.self="close"
   >
-    <div v-if="isOpen" class="ui-modal__content">
+    <div class="ui-modal__content">
       <div class="content-header">
         <slot name="header"></slot>
       </div>
@@ -16,7 +16,7 @@
       <div class="content-footer">
         <slot name="footer" :submit-modal="submitModal">
           <div class="footer-actions">
-            <button class="mr-4 rounded p-2 bg-gray-400" @click="closeModal">
+            <button class="mr-4 rounded p-2 bg-gray-400" @click="close">
               Отмена
             </button>
             <button class="rounded p-2 bg-green-300" @click="submitModal">
@@ -33,26 +33,35 @@
 export default {
   name: "UiModal",
 
-  props: {
-    isOpen: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  modalPromiseController: null,
 
-  emits: {
-    close: null,
-    ok: null,
-  },
+  data: () => ({
+    isOpen: false,
+  }),
 
   methods: {
-    closeModal() {
-      this.$emit("close");
+    open() {
+      let resolve;
+      let reject;
+      const modalPromise = new Promise((ok, fail) => {
+        resolve = ok;
+        reject = fail;
+      });
+
+      this.$options.modalPromiseController = { resolve, reject };
+      this.isOpen = true;
+
+      return modalPromise;
+    },
+
+    close() {
+      this.$options.modalPromiseController.resolve(false);
+      this.isOpen = false;
     },
 
     submitModal() {
-      window.alert("Confirmed");
-      this.$emit("ok");
+      this.$options.modalPromiseController.resolve(true);
+      this.isOpen = false;
     },
   },
 };

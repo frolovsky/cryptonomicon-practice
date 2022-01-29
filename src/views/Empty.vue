@@ -2,9 +2,9 @@
   <div>
     <h1>Empty view</h1>
 
-    <button @click="showModal = !showModal">show modal</button>
+    <button @click="openModal">show modal</button>
 
-    <ui-modal :is-open="showModal" @close="closeModal" @ok="closeModal">
+    <ui-modal ref="ui-modal">
       <template #header>
         <h2>Hello from ui-modal</h2>
       </template>
@@ -44,7 +44,6 @@ export default {
   CONFIRMED_TEXT: "IUNDERSTAND",
 
   data: () => ({
-    showModal: false,
     warningCaptcha: "",
   }),
 
@@ -55,9 +54,13 @@ export default {
   },
 
   methods: {
-    closeModal() {
-      this.showModal = false;
+    async openModal() {
       this.warningCaptcha = "";
+      const popupResult = await this.$refs["ui-modal"].open();
+
+      if (popupResult) {
+        window.alert("Modal window submitted");
+      }
     },
   },
 };
