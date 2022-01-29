@@ -2,17 +2,28 @@
   <div
     class="ui-modal"
     :class="{ 'ui-modal--opened': isOpen }"
-    @click.self="$emit('close')"
+    @click.self="closeModal"
   >
     <div v-if="isOpen" class="ui-modal__content">
       <div class="content-header">
         <slot name="header"></slot>
       </div>
+
       <div class="content-main">
         <slot name="main"></slot>
       </div>
+
       <div class="content-footer">
-        <slot name="footer"></slot>
+        <slot name="footer" :submit-modal="submitModal">
+          <div class="footer-actions">
+            <button class="mr-4 rounded p-2 bg-gray-400" @click="closeModal">
+              Отмена
+            </button>
+            <button class="rounded p-2 bg-green-300" @click="submitModal">
+              ОК
+            </button>
+          </div>
+        </slot>
       </div>
     </div>
   </div>
@@ -31,6 +42,18 @@ export default {
 
   emits: {
     close: null,
+    ok: null,
+  },
+
+  methods: {
+    closeModal() {
+      this.$emit("close");
+    },
+
+    submitModal() {
+      window.alert("Confirmed");
+      this.$emit("ok");
+    },
   },
 };
 </script>
