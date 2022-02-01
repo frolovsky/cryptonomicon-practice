@@ -2,20 +2,13 @@
   <section>
     <div class="flex">
       <div class="max-w-xs">
-        <label for="wallet" class="block text-sm font-medium text-gray-700"
-          >Тикер</label
-        >
-        <div class="mt-1 relative rounded-md shadow-md">
-          <input
-            v-model="ticker"
-            @keydown.enter="add"
-            type="text"
-            name="wallet"
-            id="wallet"
-            class="block w-full pr-10 border-gray-300 text-gray-900 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
-            placeholder="Например DOGE"
-          />
-        </div>
+        <base-input
+          v-model:model-value="ticker"
+          v-model:example-value="ticker"
+          label="Тикер"
+          placeholder="Например DOGE"
+        />
+
         <div
           v-if="ticker && hints.length"
           class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
@@ -40,6 +33,7 @@
 
 <script>
 import AddButton from "@/components/AddButton";
+import BaseInput from "@/components/BaseInput";
 
 export default {
   name: "AddTicker",
@@ -61,6 +55,7 @@ export default {
 
   components: {
     AddButton,
+    BaseInput,
   },
 
   computed: {
